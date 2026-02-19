@@ -10,7 +10,7 @@ from typing import List
 
 import anthropic
 
-from llm_clients.base_client import BaseLLMClient, LLMConfig, Message
+from llm_clients.base_client import BaseLLMClient, LLMConfig, LLMResponse, Message, ToolCall
 
 
 class AnthropicClient(BaseLLMClient):
@@ -74,3 +74,47 @@ class AnthropicClient(BaseLLMClient):
             raw = raw.rsplit("```", 1)[0]
 
         return json.loads(raw)
+
+    def complete_with_tools(self, messages: List[dict], tools: List[dict]) -> LLMResponse:
+        """
+        Call Claude with tool definitions and return a structured LLMResponse.
+
+        *messages* is a list of Anthropic-format message dicts (role + content).
+        Content may be a plain string or a list of content blocks (for tool use).
+
+        *tools* is a list of Anthropic tool schema dicts with keys:
+            name, description, input_schema.
+        """
+        kwargs = dict(
+            model=self.config.model,
+            max_tokens=self.config.max_tokens,
+            temperature=self.config.temperature,
+            messages=messages,
+            tools=tools,
+        )
+        if self.config.system_prompt:
+            kwargs["system"] = self.config.system_prompt
+
+        response = self._client.messages.create(**kwargs)
+
+        text = ""
+        tool_calls: List[ToolCall] = []
+
+        for block in response.content:
+            if block.type == "text":
+                text = block.text
+            elif block.type == "tool_use":
+                tool_calls.append(
+                    ToolCall(
+                        tool_use_id=block.id,
+                        tool_name=block.name,
+                        tool_input=block.input,
+                    )
+                )
+
+        return LLMResponse(
+            text=text,
+            tool_calls=tool_calls,
+            stop_reason=response.stop_reason,
+            raw_content=response.content,
+        )

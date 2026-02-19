@@ -1,0 +1,29 @@
+{
+  "user_id": "ellie_superwoman",
+  "name": "Ellie",
+  "age": 28,
+  "fitness_level": "intermediate",
+  "goals": [
+    "build muscle",
+    "lose fat",
+    "improve lean muscle mass",
+    "improve neck and shoulder strength",
+    "improve climbing performance"
+  ],
+  "equipment": [
+    "full gym",
+    "barbells",
+    "dumbbells",
+    "cables",
+    "machines",
+    "pull-up bar"
+  ],
+  "injuries": [
+    "neck tension",
+    "shoulder tension",
+    "knee pain"
+  ],
+  "sessions_per_week": 5,
+  "created_at": "2026-02-19T06:40:47.953106",
+  "updated_at": "2026-02-19T06:40:47.953144"
+}
